@@ -1,29 +1,39 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
+import { Icon } from '@/components/ui/icon';
+import '@/global.css';
+import { useAuth } from '@/store/authStore';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Link, Stack } from 'expo-router';
+import { User } from 'lucide-react-native';
+import { Pressable } from 'react-native';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+// Create a client
+const queryClient = new QueryClient();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
-
-  if (!loaded) {
-    // Async font loading only occurs in development.
-    return null;
-  }
+  const isLoggedIn = useAuth((s) => !!s.token);
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <GluestackUIProvider>
+        <Stack
+        >
+          <Stack.Screen
+            name="index"
+            options={{
+              title: 'Shop',
+              headerLeft: () =>
+                !isLoggedIn && (
+                  <Link href={'/login'} asChild>
+                    <Pressable className="flex-row gap-2">
+                      <Icon as={User} />
+                    </Pressable>
+                  </Link>
+                ),
+            }}
+          />
+        </Stack>
+      </GluestackUIProvider>
+    </QueryClientProvider>
   );
 }

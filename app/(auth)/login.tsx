@@ -1,3 +1,4 @@
+import { login } from '@/api/auth';
 import { Button, ButtonText } from '@/components/ui/button';
 import { FormControl } from '@/components/ui/form-control';
 import { Heading } from '@/components/ui/heading';
@@ -5,6 +6,9 @@ import { HStack } from '@/components/ui/hstack';
 import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
+import { useAuth } from '@/store/authStore';
+import { useMutation } from '@tanstack/react-query';
+import { Redirect } from 'expo-router';
 import { EyeIcon, EyeOffIcon } from 'lucide-react-native';
 import { useState } from 'react';
 
@@ -13,9 +17,37 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  const setUser = useAuth((s) => s.setUser);
+  const setToken = useAuth((s) => s.setToken);
+  const isLoggedIn = useAuth((s) => !!s.token);
+
+  const loginMutation = useMutation({
+    mutationFn: () => login(email, password),
+    onSuccess: (data) => {
+      console.log('Success: ', data);
+      if (data.user && data.token) {
+        setUser(data.user);
+        setToken(data.token);
+      }
+    },
+    onError: () => {
+      console.log('Error');
+    },
+  });
+
+  const handleState = () => {
+    setShowPassword((showState) => {
+      return !showState;
+    });
+  };
+
+  if (isLoggedIn) {
+    return <Redirect href={'/'} />;
+  }
 
   return (
     <FormControl
+      isInvalid={loginMutation.error}
       className="p-4 border rounded-lg max-w-[500px] border-outline-300 bg-white m-2"
     >
       <VStack space="xl">
@@ -34,7 +66,7 @@ export default function LoginScreen() {
               onChangeText={setPassword}
               type={showPassword ? 'text' : 'password'}
             />
-            <InputSlot className="pr-3">
+            <InputSlot className="pr-3" onPress={handleState}>
               <InputIcon
                 as={showPassword ? EyeIcon : EyeOffIcon}
                 className="text-darkBlue-500"
@@ -44,7 +76,7 @@ export default function LoginScreen() {
         </VStack>
         <HStack space="sm">
 
-          <Button className="flex-1">
+          <Button className="flex-1" onPress={() => loginMutation.mutate()}>
             <ButtonText>Sign in</ButtonText>
           </Button>
         </HStack>

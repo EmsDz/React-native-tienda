@@ -1,15 +1,35 @@
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { create } from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
+
+type Address = {
+  street: string;
+  city: string;
+  zipCode: string;
+};
+
+type UserData = {
+  id: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  age: number;
+  isActive: boolean;
+  address: Address;
+  roles: string[];
+};
 
 export const useAuth = create(
   persist(
     (set) => ({
       user: null,
       token: null,
+      userData: null as UserData | null,
 
-      setUser: (user) => set({ user }),
-      setToken: (token) => set({ token }),
+      setUser: (user: string) => set({ user }),
+      setToken: (token: string) => set({ token }),
+      setUserData: (userData: UserData) => set({ userData }),
     }),
     {
       name: 'auth-store',

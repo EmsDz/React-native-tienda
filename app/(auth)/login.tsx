@@ -12,10 +12,18 @@ import { Redirect } from 'expo-router';
 import { EyeIcon, EyeOffIcon } from 'lucide-react-native';
 import { useState } from 'react';
 
+import { z } from 'zod';
+
+const loginSchema = z.object({
+  email: z.string().email({ message: 'Invalid email address' }),
+  password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
+});
+
 export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [formErrors, setFormErrors] = useState<{ email?: string; password?: string }>({});
 
   const setUser = useAuth((s) => s.setUser);
   const setToken = useAuth((s) => s.setToken);
@@ -41,13 +49,28 @@ export default function LoginScreen() {
     });
   };
 
+  const handleLogin = () => {
+    const result = loginSchema.safeParse({ email, password });
+    if (!result.success) {
+      const errors: { email?: string; password?: string } = {};
+      if (!email) errors.email = 'Email is required';
+      if (!password) errors.password = 'Password is required';
+      if (Object.keys(errors).length > 0) {
+        setFormErrors(errors);
+        return;
+      }
+    }
+    setFormErrors({});
+    loginMutation.mutate();
+  };
+
   if (isLoggedIn) {
     return <Redirect href={'/'} />;
   }
 
   return (
     <FormControl
-      isInvalid={loginMutation.error}
+      isInvalid={formErrors.email != undefined && formErrors.password != undefined}
       className="p-4 border rounded-lg max-w-[500px] border-outline-300 bg-white m-2"
     >
       <VStack space="xl">
@@ -55,8 +78,15 @@ export default function LoginScreen() {
         <VStack space="xs">
           <Text className="text-typography-500 leading-1">Email</Text>
           <Input>
-            <InputField value={email} onChangeText={setEmail} type="text" />
+            <InputField
+              value={email}
+              onChangeText={setEmail}
+              type="text"
+            />
           </Input>
+          {formErrors.email && (
+            <Text className="text-red-500 text-xs mt-1">{formErrors.email}</Text>
+          )}
         </VStack>
         <VStack space="xs">
           <Text className="text-typography-500 leading-1">Password</Text>
@@ -67,16 +97,18 @@ export default function LoginScreen() {
               type={showPassword ? 'text' : 'password'}
             />
             <InputSlot className="pr-3" onPress={handleState}>
-              <InputIcon
-                as={showPassword ? EyeIcon : EyeOffIcon}
-                className="text-darkBlue-500"
-              />
             </InputSlot>
+            <InputIcon
+              as={showPassword ? EyeIcon : EyeOffIcon}
+              className="text-darkBlue-500"
+            />
           </Input>
+          {formErrors.password && (
+            <Text className="text-red-500 text-xs mt-1">{formErrors.password}</Text>
+          )}
         </VStack>
         <HStack space="sm">
-
-          <Button className="flex-1" onPress={() => loginMutation.mutate()}>
+          <Button className="flex-1" onPress={handleLogin}>
             <ButtonText>Sign in</ButtonText>
           </Button>
         </HStack>

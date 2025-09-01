@@ -1,13 +1,13 @@
-import { useState } from 'react';
-import { ScrollView, Alert } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useMutation } from '@tanstack/react-query';
+import { createOrder, DeliveryInfo } from '@/api/orders';
+import { DeliveryForm, OrderConfirmation, OrderReview, StepIndicator } from '@/components/checkout';
 import { Box } from '@/components/ui/box';
 import { Heading } from '@/components/ui/heading';
 import { useAuth } from '@/store/authStore';
 import { useCart } from '@/store/cartStore';
-import { createOrder, DeliveryInfo } from '@/api/orders';
-import { StepIndicator, DeliveryForm, OrderReview, OrderConfirmation } from '@/components/checkout';
+import { useMutation } from '@tanstack/react-query';
+import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import { Alert, ScrollView } from 'react-native';
 
 // Define checkout steps
 type CheckoutStep = 'delivery-info' | 'review' | 'confirmation';
@@ -80,8 +80,8 @@ export default function CheckoutScreen() {
       );
     },
     onSuccess: (data) => {
-      // Generate a random order number if the API doesn't provide one
-      const generatedOrderNumber = data.id ? `#${data.id}` : `#${Math.floor(100000 + Math.random() * 900000)}`;
+      // Generate a random order number
+      const generatedOrderNumber = `#${Math.floor(100000 + Math.random() * 900000)}`;
       setOrderNumber(generatedOrderNumber);
       setCurrentStep('confirmation');
     },

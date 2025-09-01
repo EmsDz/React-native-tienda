@@ -17,12 +17,12 @@ type UserData = {
   age: number;
   isActive: boolean;
   address: Address;
-  roles: string[];
+  role: string;
 };
 
 export const useAuth = create(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       token: null,
       userData: null as UserData | null,

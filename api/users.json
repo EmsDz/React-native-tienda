@@ -12,9 +12,7 @@
       "city": "Anytown",
       "zipCode": "12345"
     },
-    "roles": [
-      "admin"
-    ]
+    "role": "admin"
   },
   {
     "id": "user_2",
@@ -29,8 +27,6 @@
       "city": "Anytown",
       "zipCode": "12345"
     },
-    "roles": [
-      "user"
-    ]
+    "role": "user"
   }
 ]

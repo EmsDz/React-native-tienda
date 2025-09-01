@@ -26,6 +26,7 @@ export default function LoginScreen() {
   const [formErrors, setFormErrors] = useState<{ email?: string; password?: string }>({});
 
   const setUser = useAuth((s) => s.setUser);
+  const setUserData = useAuth((s) => s.setUserData);
   const setToken = useAuth((s) => s.setToken);
   const isLoggedIn = useAuth((s) => !!s.token);
 
@@ -35,6 +36,7 @@ export default function LoginScreen() {
       console.log('Success: ', data);
       if (data.user && data.token) {
         setUser(data.user);
+        setUserData(data.userData);
         setToken(data.token);
       }
     },

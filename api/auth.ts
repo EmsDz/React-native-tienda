@@ -1,9 +1,10 @@
 import users from './users.json';
 
 export async function login(email: string, password: string) {
-  const user = users.find((item) => item.email == email);
+  const user = users.find((item) => item.email.toLocaleLowerCase() == email.toLocaleLowerCase());
+  console.log(user);
 
-  if (email == "admin@admin.com") {
+  if (email.toLocaleLowerCase() == "admin@admin.com") {
     return { user: "admin", token: "valid", userData: user };
   }
 

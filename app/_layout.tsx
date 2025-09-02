@@ -4,6 +4,7 @@ import { Text } from '@/components/ui/text';
 import '@/global.css';
 import { useAuth } from '@/store/authStore';
 import { useCart } from '@/store/cartStore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Link, Stack } from 'expo-router';
 import { LogOutIcon, ShoppingCart, User } from 'lucide-react-native';
@@ -19,17 +20,23 @@ export default function RootLayout() {
   const setUser = useAuth((s) => s.setUser);
   const setToken = useAuth((s) => s.setToken);
   const setUserData = useAuth((s) => s.setUserData);
+  const userIsAdmin = useAuth((state) => {
 
-  console.log(isLoggedIn);
+    if (state.userData != null) {
+      return state.userData.role == "admin";
+    } else {
+      return false;
+    }
+  });
 
 
-  function logout() {
-    console.log('Success');
-
+  async function logout() {
+    console.log('Success log out');
 
     setUser(null);
     setToken(null);
     setUserData(null);
+    await AsyncStorage.clear();
   }
 
   return (
@@ -38,7 +45,7 @@ export default function RootLayout() {
         <Stack
           screenOptions={{
             headerRight: () =>
-              cartItemsNum > 0 && (
+              (!userIsAdmin && cartItemsNum > 0) && (
                 <Link href={'/cart'} asChild>
                   <Pressable
                     style={{

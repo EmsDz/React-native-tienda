@@ -80,8 +80,8 @@ export default function CheckoutScreen() {
       );
     },
     onSuccess: (data) => {
-      // Generate a random order number
-      const generatedOrderNumber = `#${Math.floor(100000 + Math.random() * 900000)}`;
+      // Generate a random order number if the API doesn't provide one
+      const generatedOrderNumber = data.id ? `#${data.id}` : `#${Math.floor(100000 + Math.random() * 900000)}`;
       setOrderNumber(generatedOrderNumber);
       setCurrentStep('confirmation');
     },

@@ -1,4 +1,4 @@
-import users from './users.json';
+import users from '../assets/users.json';
 
 export async function login(email: string, password: string) {
   const user = users.find((item) => item.email.toLocaleLowerCase() == email.toLocaleLowerCase());

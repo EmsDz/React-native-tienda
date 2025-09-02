@@ -15,7 +15,7 @@ import { useState } from 'react';
 import { z } from 'zod';
 
 const loginSchema = z.object({
-  email: z.string().email({ message: 'Invalid email address' }),
+  email: z.email({ message: 'Invalid email address' }),
   password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
 });
 
@@ -53,10 +53,17 @@ export default function LoginScreen() {
 
   const handleLogin = () => {
     const result = loginSchema.safeParse({ email, password });
+    let errors: { email?: string; password?: string } = {};
     if (!result.success) {
-      const errors: { email?: string; password?: string } = {};
-      if (!email) errors.email = 'Email is required';
-      if (!password) errors.password = 'Password is required';
+      const data = JSON.parse(result.error!.message);
+      data.forEach((err: any) => {
+        if (err.path && err.path[0] === 'email') {
+          errors.email = 'Valid email is required';
+        }
+        if (err.path && err.path[0] === 'password') {
+          errors.password = 'Valid password is required';
+        }
+      });
       if (Object.keys(errors).length > 0) {
         setFormErrors(errors);
         return;
